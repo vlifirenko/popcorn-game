@@ -122,9 +122,32 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
+void DrawBrick(HDC hdc, int x, int y, bool is_blue)
+{
+   if (is_blue)
+   {
+      HPEN blue_pen = CreatePen(PS_SOLID, 0, RGB(85, 255, 255));
+      HBRUSH blue_brush = CreateSolidBrush(RGB(85, 255, 255));
+
+      SelectObject(hdc, blue_pen);
+      SelectObject(hdc, blue_brush);
+   }
+   else
+   {
+      HPEN red_pen = CreatePen(PS_SOLID, 0, RGB(255, 85, 255));
+      HBRUSH red_brush = CreateSolidBrush(RGB(255, 85, 255));
+
+      SelectObject(hdc, red_pen);
+      SelectObject(hdc, red_brush);
+   }
+
+   Rectangle(hdc, x * 3, y * 3, (x + 15) * 3, (y + 7) * 3);
+}
+
 void DrawFrame(HDC hdc)
 {
-
+   DrawBrick(hdc, 8, 6, false);
+   DrawBrick(hdc, 8, 6 + 8, true);  
 }
 
 //
