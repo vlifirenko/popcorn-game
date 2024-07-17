@@ -2,7 +2,7 @@
 //
 
 #include "framework.h"
-#include "popcorn-game.h"
+#include "main.h"
 
 #define MAX_LOADSTRING 100
 
@@ -75,7 +75,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hInstance      = hInstance;
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_POPCORNGAME));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
+    wcex.hbrBackground  = CreateSolidBrush(RGB(0, 0, 0));
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_POPCORNGAME);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
@@ -97,18 +97,34 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+   RECT window_rect;
+   window_rect.left = 0;
+   window_rect.top = 0;
+   window_rect.right = 320 * 3;
+   window_rect.bottom = 200 * 3;
 
-   if (!hWnd)
-   {
+   AdjustWindowRect(&window_rect, WS_OVERLAPPEDWINDOW, TRUE);
+
+   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+      0,
+      0,
+      window_rect.right - window_rect.left,
+      window_rect.bottom - window_rect.top,
+      nullptr, nullptr, hInstance, nullptr);
+
+
+   if (hWnd == 0)
       return FALSE;
-   }
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
    return TRUE;
+}
+
+void DrawFrame(HDC hdc)
+{
+
 }
 
 //
@@ -147,6 +163,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Add any drawing code that uses hdc here...
+            DrawFrame(hdc);
             EndPaint(hWnd, &ps);
         }
         break;
