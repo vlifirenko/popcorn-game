@@ -11,6 +11,14 @@ HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 
+const int GLOBAL_SCALE = 3;
+const int BRICK_WIDTH = 15;
+const int BRICK_HEIGHT = 7;
+const int CELL_WIDTH = 16;
+const int CELL_HEIGHT = 8;
+const int LEVEL_X_OFFSET = 8;
+const int LEVEL_Y_OFFSET = 6;
+
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -100,8 +108,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    RECT window_rect;
    window_rect.left = 0;
    window_rect.top = 0;
-   window_rect.right = 320 * 3;
-   window_rect.bottom = 200 * 3;
+   window_rect.right = 320 * GLOBAL_SCALE;
+   window_rect.bottom = 200 * GLOBAL_SCALE;
 
    AdjustWindowRect(&window_rect, WS_OVERLAPPEDWINDOW, TRUE);
 
@@ -124,30 +132,37 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 void DrawBrick(HDC hdc, int x, int y, bool is_blue)
 {
+   HPEN pen;
+   HBRUSH brush;
+
    if (is_blue)
    {
-      HPEN blue_pen = CreatePen(PS_SOLID, 0, RGB(85, 255, 255));
-      HBRUSH blue_brush = CreateSolidBrush(RGB(85, 255, 255));
-
-      SelectObject(hdc, blue_pen);
-      SelectObject(hdc, blue_brush);
+      pen = CreatePen(PS_SOLID, 0, RGB(85, 255, 255));
+      brush = CreateSolidBrush(RGB(85, 255, 255));      
    }
    else
    {
-      HPEN red_pen = CreatePen(PS_SOLID, 0, RGB(255, 85, 255));
-      HBRUSH red_brush = CreateSolidBrush(RGB(255, 85, 255));
-
-      SelectObject(hdc, red_pen);
-      SelectObject(hdc, red_brush);
+      pen = CreatePen(PS_SOLID, 0, RGB(255, 85, 255));
+      brush = CreateSolidBrush(RGB(255, 85, 255));
    }
 
-   Rectangle(hdc, x * 3, y * 3, (x + 15) * 3, (y + 7) * 3);
+   SelectObject(hdc, pen);
+   SelectObject(hdc, brush);
+
+   Rectangle(hdc,
+      x * GLOBAL_SCALE,
+      y * GLOBAL_SCALE,
+      (x + BRICK_WIDTH) * GLOBAL_SCALE,
+      (y + BRICK_HEIGHT) * GLOBAL_SCALE);
 }
 
 void DrawFrame(HDC hdc)
 {
-   DrawBrick(hdc, 8, 6, false);
-   DrawBrick(hdc, 8, 6 + 8, true);  
+   for (int i = 0; i < 14; i++)
+      for (int j = 0; j < 12; j++)
+      {
+         DrawBrick(hdc, LEVEL_X_OFFSET + j * CELL_WIDTH, LEVEL_Y_OFFSET + i * CELL_HEIGHT, true);
+      }
 }
 
 //
