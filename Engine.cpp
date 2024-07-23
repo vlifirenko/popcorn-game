@@ -1,5 +1,7 @@
 #include "Engine.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 enum EBrickType
 {
@@ -97,6 +99,36 @@ void DrawBrick(HDC hdc, int x, int y, EBrickType brick_type)
       2 * GLOBAL_SCALE, 2 * GLOBAL_SCALE);
 }
 
+void DrawBrickLetter(HDC hdc, int x, int y, int rotation_step)
+{
+   double rotation_angle = 2.0 * M_PI / 16 * (double)rotation_step;
+   int brick_half_height = BRICK_HEIGHT * GLOBAL_SCALE / 2;
+   XFORM xform, old_xform;
+
+   SetGraphicsMode(hdc, GM_ADVANCED);
+
+   xform.eM11 = 1.0f;
+   xform.eM12 = 0.0f;
+   xform.eM21 = 0.0f;
+   xform.eM22 = (float)cos(rotation_angle);
+   xform.eDx = (float)x;
+   xform.eDy = (float)y + (float)brick_half_height;
+
+   GetWorldTransform(hdc, &old_xform);
+   SetWorldTransform(hdc, &xform);
+
+   SelectObject(hdc, brick_blue_brush);
+   SelectObject(hdc, brick_blue_pen);
+
+   Rectangle(hdc,
+      0,
+      -brick_half_height,
+      BRICK_WIDTH * GLOBAL_SCALE,
+      brick_half_height);
+
+   SetWorldTransform(hdc, &old_xform);
+}
+
 void DrawLevel(HDC hdc)
 {
    for (int i = 0; i < 14; i++)
@@ -149,6 +181,12 @@ void DrawPlatform(HDC hdc, int x, int y)
 
 void DrawFrame(HDC hdc)
 {
-   DrawLevel(hdc);
-   DrawPlatform(hdc, 50, 100);
+  // DrawLevel(hdc);
+   //DrawPlatform(hdc, 50, 100);
+
+   for (int i = 0; i < 16; i++)
+   {
+      DrawBrickLetter(hdc,20 + i*CELL_WIDTH*GLOBAL_SCALE, 100,i);
+
+   }
 }
