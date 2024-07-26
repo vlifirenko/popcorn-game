@@ -101,32 +101,69 @@ void DrawBrick(HDC hdc, int x, int y, EBrickType brick_type)
 
 void DrawBrickLetter(HDC hdc, int x, int y, int rotation_step)
 {
+   double offset;
    double rotation_angle = 2.0 * M_PI / 16 * (double)rotation_step;
    int brick_half_height = BRICK_HEIGHT * GLOBAL_SCALE / 2;
+   int back_part_offset;
    XFORM xform, old_xform;
 
-   SetGraphicsMode(hdc, GM_ADVANCED);
+   if (rotation_step == 4 || rotation_step == 12)
+   {
+      SelectObject(hdc, brick_red_brush);
+      SelectObject(hdc, brick_red_pen);
 
-   xform.eM11 = 1.0f;
-   xform.eM12 = 0.0f;
-   xform.eM21 = 0.0f;
-   xform.eM22 = (float)cos(rotation_angle);
-   xform.eDx = (float)x;
-   xform.eDy = (float)y + (float)brick_half_height;
+      Rectangle(hdc,
+         x,
+         y + brick_half_height - GLOBAL_SCALE,
+         x + BRICK_WIDTH * GLOBAL_SCALE,
+         y + brick_half_height);
 
-   GetWorldTransform(hdc, &old_xform);
-   SetWorldTransform(hdc, &xform);
+      SelectObject(hdc, brick_blue_brush);
+      SelectObject(hdc, brick_blue_pen);
 
-   SelectObject(hdc, brick_blue_brush);
-   SelectObject(hdc, brick_blue_pen);
+      Rectangle(hdc,
+         x,
+         y + brick_half_height,
+         x + BRICK_WIDTH * GLOBAL_SCALE,
+         y + brick_half_height + GLOBAL_SCALE - 1);
+   }
+   else
+   {
+      SetGraphicsMode(hdc, GM_ADVANCED);
 
-   Rectangle(hdc,
-      0,
-      -brick_half_height,
-      BRICK_WIDTH * GLOBAL_SCALE,
-      brick_half_height);
+      xform.eM11 = 1.0f;
+      xform.eM12 = 0.0f;
+      xform.eM21 = 0.0f;
+      xform.eM22 = (float)cos(rotation_angle);
+      xform.eDx = (float)x;
+      xform.eDy = (float)y + (float)brick_half_height;
 
-   SetWorldTransform(hdc, &old_xform);
+      GetWorldTransform(hdc, &old_xform);
+      SetWorldTransform(hdc, &xform);
+
+      SelectObject(hdc, brick_red_brush);
+      SelectObject(hdc, brick_red_pen);
+
+      offset = 3.0 * (1.0 - fabs(xform.eM22)) * (double)GLOBAL_SCALE;
+      back_part_offset = (int)round(offset);
+
+      Rectangle(hdc,
+         0,
+         -brick_half_height - back_part_offset,
+         BRICK_WIDTH * GLOBAL_SCALE,
+         brick_half_height - back_part_offset);
+
+      SelectObject(hdc, brick_blue_brush);
+      SelectObject(hdc, brick_blue_pen);
+
+      Rectangle(hdc,
+         0,
+         -brick_half_height,
+         BRICK_WIDTH * GLOBAL_SCALE,
+         brick_half_height);
+
+      SetWorldTransform(hdc, &old_xform);
+   }
 }
 
 void DrawLevel(HDC hdc)
