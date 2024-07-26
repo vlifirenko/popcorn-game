@@ -3,6 +3,12 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+enum ELetterType
+{
+   ELT_None,
+   ELT_O
+};
+
 enum EBrickType
 {
    EBT_None,
@@ -11,11 +17,11 @@ enum EBrickType
 };
 
 HPEN highlight_pen;
+HPEN letter_pen;
 HPEN brick_red_pen;
 HPEN brick_blue_pen;
 HPEN platform_circle_pen;
 HPEN platform_inner_pen;
-HBRUSH highlight_brush;
 HBRUSH brick_red_brush;
 HBRUSH brick_blue_brush;
 HBRUSH platform_circle_brush;
@@ -57,7 +63,9 @@ void CreatePenBrush(unsigned char r, unsigned char g, unsigned char b, HPEN &pen
 
 void Init()
 {
-   CreatePenBrush(255, 255, 255, highlight_pen, highlight_brush);
+   highlight_pen = CreatePen(PS_SOLID, 0, RGB(255, 255, 255));
+   letter_pen = CreatePen(PS_SOLID, GLOBAL_SCALE, RGB(255, 255, 255));
+
    CreatePenBrush(255, 85, 85, brick_red_pen, brick_red_brush);
    CreatePenBrush(85, 255, 255, brick_blue_pen, brick_blue_brush);
    CreatePenBrush(151, 0, 0, platform_circle_pen, platform_circle_brush);
@@ -118,7 +126,7 @@ void SetBrickLetterColors(bool is_switch_color, HPEN &front_pen, HBRUSH &front_b
    }
 }
 
-void DrawBrickLetter(HDC hdc, int x, int y, EBrickType brick_type, int rotation_step)
+void DrawBrickLetter(HDC hdc, int x, int y, EBrickType brick_type, ELetterType letter_type, int rotation_step)
 {
    bool switch_color;
    double offset;
@@ -200,6 +208,19 @@ void DrawBrickLetter(HDC hdc, int x, int y, EBrickType brick_type, int rotation_
          BRICK_WIDTH * GLOBAL_SCALE,
          brick_half_height);
 
+      if (rotation_step > 4 && rotation_step <= 12)
+      {
+         if (letter_type == ELT_O)
+         {
+            SelectObject(hdc, letter_pen);
+            Ellipse(hdc,
+               0 + 5 * GLOBAL_SCALE,
+               (-5 * GLOBAL_SCALE) / 2,
+               0 + 10 * GLOBAL_SCALE,
+               5 * GLOBAL_SCALE / 2);
+         }
+      }   
+
       SetWorldTransform(hdc, &old_xform);
    }
 }
@@ -230,7 +251,6 @@ void DrawPlatform(HDC hdc, int x, int y)
       (y + CIRCLE_SIZE) * GLOBAL_SCALE);
 
    SelectObject(hdc, highlight_pen);
-   SelectObject(hdc, highlight_brush);
 
    Arc(hdc,
       (x + 1) * GLOBAL_SCALE,
@@ -261,7 +281,7 @@ void DrawFrame(HDC hdc)
 
    for (int i = 0; i < 16; i++)
    {
-      DrawBrickLetter(hdc,20 + i*CELL_WIDTH*GLOBAL_SCALE, 100, EBT_Blue, i);
-      DrawBrickLetter(hdc,20 + i*CELL_WIDTH*GLOBAL_SCALE, 130, EBT_Red, i);
+      DrawBrickLetter(hdc,20 + i*CELL_WIDTH*GLOBAL_SCALE, 100, EBT_Blue, ELT_O, i);
+      DrawBrickLetter(hdc,20 + i*CELL_WIDTH*GLOBAL_SCALE, 130, EBT_Red, ELT_O, i);
    }
 }
