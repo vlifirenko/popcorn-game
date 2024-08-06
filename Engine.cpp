@@ -16,16 +16,19 @@ enum EBrickType
    EBT_Blue
 };
 
+HWND hwnd;
 HPEN highlight_pen;
 HPEN letter_pen;
 HPEN brick_red_pen;
 HPEN brick_blue_pen;
 HPEN platform_circle_pen;
 HPEN platform_inner_pen;
+HPEN bg_pen;
 HBRUSH brick_red_brush;
 HBRUSH brick_blue_brush;
 HBRUSH platform_circle_brush;
 HBRUSH platform_inner_brush;
+HBRUSH bg_brush;
 
 const int BRICK_WIDTH = 15;
 const int BRICK_HEIGHT = 7;
@@ -33,11 +36,20 @@ const int CELL_WIDTH = 16;
 const int CELL_HEIGHT = 8;
 const int LEVEL_X_OFFSET = 8;
 const int LEVEL_Y_OFFSET = 6;
+const int LEVEL_WIDTH = 14;
+const int LEVEL_HEIGHT = 12;
 const int CIRCLE_SIZE = 7;
+const int PLATFORM_Y_POS = 185;
+const int PLATFORM_HEIGHT = 7;
 
 int inner_width = 21;
+int platform_x_pos = 0;
+int platform_x_step = GLOBAL_SCALE;
+int platform_width = 28;
 
-char LEVEL_01[14][12] =
+RECT platform_rect, prev_platform_rect, level_rect;
+
+char LEVEL_01[LEVEL_WIDTH][LEVEL_HEIGHT] =
 {
    0,0,0,0,0,0,0,0,0,0,0,0,
    1,1,1,1,1,1,1,1,1,1,1,1,
@@ -61,15 +73,38 @@ void CreatePenBrush(unsigned char r, unsigned char g, unsigned char b, HPEN &pen
    brush = CreateSolidBrush(RGB(r, g, b));
 }
 
-void Init()
+void RedrawPlatform()
 {
+   prev_platform_rect = platform_rect;
+
+   platform_rect.left = (LEVEL_X_OFFSET + platform_x_pos) * GLOBAL_SCALE;
+   platform_rect.top = PLATFORM_Y_POS * GLOBAL_SCALE;
+   platform_rect.right = platform_rect.left + platform_width * GLOBAL_SCALE;
+   platform_rect.bottom = platform_rect.top + PLATFORM_HEIGHT * GLOBAL_SCALE;
+
+   InvalidateRect(hwnd, &prev_platform_rect, FALSE);
+   InvalidateRect(hwnd, &platform_rect, FALSE);
+}
+
+void InitEngine(HWND h)
+{
+   hwnd = h;
+
    highlight_pen = CreatePen(PS_SOLID, 0, RGB(255, 255, 255));
    letter_pen = CreatePen(PS_SOLID, GLOBAL_SCALE, RGB(255, 255, 255));
 
+   CreatePenBrush(15, 63, 31, bg_pen, bg_brush);
    CreatePenBrush(255, 85, 85, brick_red_pen, brick_red_brush);
    CreatePenBrush(85, 255, 255, brick_blue_pen, brick_blue_brush);
    CreatePenBrush(151, 0, 0, platform_circle_pen, platform_circle_brush);
    CreatePenBrush(0, 128, 192, platform_inner_pen, platform_inner_brush);
+
+   level_rect.left = LEVEL_X_OFFSET * GLOBAL_SCALE;
+   level_rect.top = LEVEL_Y_OFFSET * GLOBAL_SCALE;
+   level_rect.right = level_rect.left + CELL_WIDTH * LEVEL_WIDTH * GLOBAL_SCALE;
+	level_rect.bottom = level_rect.top +CELL_HEIGHT * LEVEL_HEIGHT * GLOBAL_SCALE;
+
+   RedrawPlatform();
 }
 
 void DrawBrick(HDC hdc, int x, int y, EBrickType brick_type)
@@ -236,6 +271,15 @@ void DrawLevel(HDC hdc)
 
 void DrawPlatform(HDC hdc, int x, int y)
 {
+   SelectObject(hdc, bg_pen);
+   SelectObject(hdc, bg_brush);
+
+   Rectangle(hdc,
+      prev_platform_rect.left,
+      prev_platform_rect.top,
+      prev_platform_rect.right,
+      prev_platform_rect.bottom);
+
    SelectObject(hdc, platform_circle_pen);
    SelectObject(hdc, platform_circle_brush);
 
@@ -274,14 +318,38 @@ void DrawPlatform(HDC hdc, int x, int y)
       3 * GLOBAL_SCALE);
 }
 
-void DrawFrame(HDC hdc)
+void DrawFrame(HDC hdc, RECT &paint_area)
 {
-  // DrawLevel(hdc);
-   //DrawPlatform(hdc, 50, 100);
+   RECT intersection_rect;
 
-   for (int i = 0; i < 16; i++)
+   if (IntersectRect(&intersection_rect, &paint_area, &level_rect))
+      DrawLevel(hdc);
+
+   if (IntersectRect(&intersection_rect, &paint_area, &platform_rect))
+      DrawPlatform(hdc, LEVEL_X_OFFSET + platform_x_pos, PLATFORM_Y_POS);
+
+   /*for (int i = 0; i < 16; i++)
    {
       DrawBrickLetter(hdc,20 + i*CELL_WIDTH*GLOBAL_SCALE, 100, EBT_Blue, ELT_O, i);
       DrawBrickLetter(hdc,20 + i*CELL_WIDTH*GLOBAL_SCALE, 130, EBT_Red, ELT_O, i);
+   }*/
+}
+
+int OnKeyDown(EKeyType key_type)
+{
+   switch (key_type)
+   {
+   case EKT_Left:
+      platform_x_pos -= platform_x_step;
+      RedrawPlatform();
+      break;
+   case EKT_Right:
+      platform_x_pos += platform_x_step;
+      RedrawPlatform();
+      break;
+   case EKT_Space:
+      break;
    }
+
+   return 0;
 }
