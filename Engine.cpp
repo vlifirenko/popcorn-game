@@ -24,11 +24,13 @@ HPEN brick_blue_pen;
 HPEN platform_circle_pen;
 HPEN platform_inner_pen;
 HPEN bg_pen;
+HPEN ball_pen;
 HBRUSH brick_red_brush;
 HBRUSH brick_blue_brush;
 HBRUSH platform_circle_brush;
 HBRUSH platform_inner_brush;
 HBRUSH bg_brush;
+HBRUSH ball_brush;
 
 const int BRICK_WIDTH = 15;
 const int BRICK_HEIGHT = 7;
@@ -41,13 +43,19 @@ const int LEVEL_HEIGHT = 12;
 const int CIRCLE_SIZE = 7;
 const int PLATFORM_Y_POS = 185;
 const int PLATFORM_HEIGHT = 7;
+const int BALL_SIZE = 4;
+const int MAX_X_POS = LEVEL_X_OFFSET + CELL_WIDTH * LEVEL_WIDTH - BALL_SIZE;
+const int MAX_Y_POS = 199 - BALL_SIZE;
 
 int inner_width = 21;
 int platform_x_pos = 0;
 int platform_x_step = GLOBAL_SCALE;
 int platform_width = 28;
 
-RECT platform_rect, prev_platform_rect, level_rect;
+int ball_x_pos = 20, ball_y_pos = 170;
+double ball_speed = 3.0, ball_direction = M_PI - M_PI_4;
+
+RECT platform_rect, prev_platform_rect, level_rect, ball_rect, prev_ball_rect;
 
 char LEVEL_01[LEVEL_WIDTH][LEVEL_HEIGHT] =
 {
@@ -98,6 +106,7 @@ void InitEngine(HWND h)
    CreatePenBrush(85, 255, 255, brick_blue_pen, brick_blue_brush);
    CreatePenBrush(151, 0, 0, platform_circle_pen, platform_circle_brush);
    CreatePenBrush(0, 128, 192, platform_inner_pen, platform_inner_brush);
+   CreatePenBrush(255, 255, 255, ball_pen, ball_brush);
 
    level_rect.left = LEVEL_X_OFFSET * GLOBAL_SCALE;
    level_rect.top = LEVEL_Y_OFFSET * GLOBAL_SCALE;
@@ -105,6 +114,8 @@ void InitEngine(HWND h)
 	level_rect.bottom = level_rect.top +CELL_HEIGHT * LEVEL_HEIGHT * GLOBAL_SCALE;
 
    RedrawPlatform();
+
+   SetTimer(hwnd, TIMER_ID, 50, 0);
 }
 
 void DrawBrick(HDC hdc, int x, int y, EBrickType brick_type)
@@ -318,6 +329,27 @@ void DrawPlatform(HDC hdc, int x, int y)
       3 * GLOBAL_SCALE);
 }
 
+void DrawBall(HDC hdc)
+{
+   SelectObject(hdc, bg_pen);
+   SelectObject(hdc, bg_brush);
+
+   Ellipse(hdc,
+      prev_ball_rect.left,
+      prev_ball_rect.top,
+      prev_ball_rect.right - 1,
+      prev_ball_rect.bottom - 1);
+
+   SelectObject(hdc, ball_pen);
+   SelectObject(hdc, ball_brush);
+
+   Ellipse(hdc,
+      ball_rect.left,
+      ball_rect.top,
+      ball_rect.right - 1,
+      ball_rect.bottom - 1);
+}
+
 void DrawFrame(HDC hdc, RECT &paint_area)
 {
    RECT intersection_rect;
@@ -333,6 +365,9 @@ void DrawFrame(HDC hdc, RECT &paint_area)
       DrawBrickLetter(hdc,20 + i*CELL_WIDTH*GLOBAL_SCALE, 100, EBT_Blue, ELT_O, i);
       DrawBrickLetter(hdc,20 + i*CELL_WIDTH*GLOBAL_SCALE, 130, EBT_Red, ELT_O, i);
    }*/
+
+   if (IntersectRect(&intersection_rect, &paint_area, &ball_rect))
+      DrawBall(hdc);
 }
 
 int OnKeyDown(EKeyType key_type)
@@ -350,6 +385,58 @@ int OnKeyDown(EKeyType key_type)
    case EKT_Space:
       break;
    }
+
+   return 0;
+}
+
+void MoveBall()
+{
+   int next_x_pos, next_y_pos;
+
+   prev_ball_rect = ball_rect;
+
+   next_x_pos = ball_x_pos + (int)(ball_speed * cos(ball_direction));
+   next_y_pos = ball_y_pos - (int)(ball_speed * sin(ball_direction));
+
+   if (next_x_pos < 0)
+   {
+      next_x_pos = -next_x_pos;
+      ball_direction = M_PI - ball_direction;
+   }
+
+   if (next_y_pos < LEVEL_Y_OFFSET)
+   {
+      next_y_pos = LEVEL_Y_OFFSET - (next_y_pos - LEVEL_Y_OFFSET);
+      ball_direction = -ball_direction;
+   }
+
+   if (next_x_pos > MAX_X_POS)
+   {
+      next_x_pos = MAX_X_POS - (next_x_pos - MAX_X_POS);
+      ball_direction = M_PI - ball_direction;
+   }
+
+   if (next_y_pos > MAX_Y_POS)
+   {
+      next_y_pos = MAX_Y_POS - (next_y_pos - MAX_Y_POS);
+      ball_direction = M_PI + (M_PI - ball_direction);
+   }
+
+   ball_x_pos = next_x_pos;
+   ball_y_pos = next_y_pos;
+
+   ball_rect.left = (LEVEL_X_OFFSET + ball_x_pos) * GLOBAL_SCALE;
+   ball_rect.top = (LEVEL_Y_OFFSET + ball_y_pos) * GLOBAL_SCALE;
+   ball_rect.right = ball_rect.left + BALL_SIZE * GLOBAL_SCALE;
+   ball_rect.bottom = ball_rect.top + BALL_SIZE * GLOBAL_SCALE;
+
+   InvalidateRect(hwnd, &prev_ball_rect, FALSE);
+   InvalidateRect(hwnd, &ball_rect, FALSE);
+}
+
+int OnTimer()
+{
+   MoveBall();
 
    return 0;
 }
