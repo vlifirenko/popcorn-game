@@ -7,6 +7,7 @@
 #define MAX_LOADSTRING 100
 
 // Global Variables:
+Engine engine;
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
@@ -116,7 +117,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    if (hWnd == 0)
       return FALSE;
 
-   InitEngine(hWnd);
+   engine.InitEngine(hWnd);
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
@@ -160,7 +161,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
             // TODO: Add any drawing code that uses hdc here...
-            DrawFrame(hdc, ps.rcPaint);
+            engine.DrawFrame(hdc, ps.rcPaint);
             EndPaint(hWnd, &ps);
         }
         break;
@@ -172,17 +173,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
        switch (wParam)
        {
        case VK_LEFT:
-          return OnKeyDown(EKT_Left);
+          return engine.OnKeyDown(EKT_Left);
        case VK_RIGHT:
-          return OnKeyDown(EKT_Right);
+          return engine.OnKeyDown(EKT_Right);
        case VK_SPACE:
-          return OnKeyDown(EKT_Space);
+          return engine.OnKeyDown(EKT_Space);
        }
        break;
 
     case WM_TIMER:
        if (wParam == TIMER_ID)
-          return OnTimer();
+          return engine.OnTimer();
        break;
 
     default:
