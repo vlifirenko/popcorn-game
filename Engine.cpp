@@ -19,8 +19,12 @@ char LEVEL_01[Engine::LEVEL_HEIGHT][Engine::LEVEL_WIDTH] =
 };
 
 Engine::Engine()
-   : inner_width(21), platform_x_pos(BORDER_X_OFFSET), platform_x_step(GLOBAL_SCALE), platform_width(28), ball_x_pos(20), ball_y_pos(170),
-     ball_speed(3.0), ball_direction(M_PI - M_PI_4)
+   : inner_width(21), platform_x_pos(BORDER_X_OFFSET), platform_x_step(GLOBAL_SCALE), platform_width(28)
+{
+}
+
+Ball::Ball()
+   : ball_x_pos(20), ball_y_pos(170), ball_speed(3.0), ball_direction(M_PI - M_PI_4)
 {
 }
 
@@ -55,7 +59,7 @@ void Engine::InitEngine(HWND h)
    CreatePenBrush(85, 255, 255, brick_blue_pen, brick_blue_brush);
    CreatePenBrush(151, 0, 0, platform_circle_pen, platform_circle_brush);
    CreatePenBrush(0, 128, 192, platform_inner_pen, platform_inner_brush);
-   CreatePenBrush(255, 255, 255, ball_pen, ball_brush);
+   CreatePenBrush(255, 255, 255, ball.ball_pen, ball.ball_brush);
    CreatePenBrush(85, 255, 255, border_blue_pen, border_blue_brush);
    CreatePenBrush(255, 255, 255, border_white_pen, border_white_brush);
 
@@ -280,10 +284,14 @@ void Engine::DrawPlatform(HDC hdc, int x, int y)
       3 * GLOBAL_SCALE);
 }
 
-void Engine::DrawBall(HDC hdc)
+void Ball::Draw(HDC hdc, RECT &paint_area, Engine *engine)
 {
-   SelectObject(hdc, bg_pen);
-   SelectObject(hdc, bg_brush);
+   RECT intersection_rect;
+   if (!IntersectRect(&intersection_rect, &paint_area, &ball_rect))
+      return;
+
+   SelectObject(hdc, engine->bg_pen);
+   SelectObject(hdc, engine->bg_brush);
 
    Ellipse(hdc,
       prev_ball_rect.left,
@@ -398,8 +406,7 @@ void Engine::DrawFrame(HDC hdc, RECT &paint_area)
       DrawBrickLetter(hdc,20 + i*CELL_WIDTH*GLOBAL_SCALE, 130, EBT_Red, ELT_O, i);
    }*/
 
-   if (IntersectRect(&intersection_rect, &paint_area, &ball_rect))
-      DrawBall(hdc);
+   ball.Draw(hdc, paint_area, this);
 
    DrawBounds(hdc);
 }
@@ -445,7 +452,7 @@ void Engine::CheckLevelBrickHit(int &next_y_pos)
          if (next_y_pos < brick_y_pos)
          {
             next_y_pos = brick_y_pos - (next_y_pos - brick_y_pos);
-            ball_direction = -ball_direction;
+            ball.ball_direction = -ball.ball_direction;
          }
       }
 
@@ -453,26 +460,26 @@ void Engine::CheckLevelBrickHit(int &next_y_pos)
    }
 }
 
-void Engine::MoveBall()
+void Ball::Move(Engine *engine)
 {
    int next_x_pos, next_y_pos;
-   int max_x_pos = MAX_X_POS - BALL_SIZE;
-   int platform_y_pos = PLATFORM_Y_POS - BALL_SIZE;
+   int max_x_pos = Engine::MAX_X_POS - BALL_SIZE;
+   int platform_y_pos = Engine::PLATFORM_Y_POS - BALL_SIZE;
 
    prev_ball_rect = ball_rect;
 
    next_x_pos = ball_x_pos + (int)(ball_speed * cos(ball_direction));
    next_y_pos = ball_y_pos - (int)(ball_speed * sin(ball_direction));
 
-   if (next_x_pos < BORDER_X_OFFSET)
+   if (next_x_pos < Engine::BORDER_X_OFFSET)
    {
-      next_x_pos = LEVEL_X_OFFSET - (next_x_pos - LEVEL_X_OFFSET);
+      next_x_pos = Engine::LEVEL_X_OFFSET - (next_x_pos - Engine::LEVEL_X_OFFSET);
       ball_direction = M_PI - ball_direction;
    }
 
-   if (next_y_pos < BORDER_Y_OFFSET)
+   if (next_y_pos < Engine::BORDER_Y_OFFSET)
    {
-      next_y_pos = BORDER_Y_OFFSET - (next_y_pos - BORDER_Y_OFFSET);
+      next_y_pos = Engine::BORDER_Y_OFFSET - (next_y_pos - Engine::BORDER_Y_OFFSET);
       ball_direction = -ball_direction;
    }
 
@@ -482,38 +489,38 @@ void Engine::MoveBall()
       ball_direction = M_PI - ball_direction;
    }
 
-   if (next_y_pos > MAX_Y_POS)
+   if (next_y_pos > Engine::MAX_Y_POS)
    {
-      next_y_pos = MAX_Y_POS - (next_y_pos - MAX_Y_POS);
+      next_y_pos = Engine::MAX_Y_POS - (next_y_pos - Engine::MAX_Y_POS);
       ball_direction = M_PI + (M_PI - ball_direction);
    }
 
    if (next_y_pos > platform_y_pos)
    {
-      if (next_x_pos >= platform_x_pos && next_x_pos <= platform_x_pos + platform_width)
+      if (next_x_pos >= engine->platform_x_pos && next_x_pos <= engine->platform_x_pos + engine->platform_width)
       {
          next_y_pos = platform_y_pos - (next_y_pos - platform_y_pos);
          ball_direction = M_PI + (M_PI - ball_direction);
       }
    }
 
-   CheckLevelBrickHit(next_y_pos);
+   engine->CheckLevelBrickHit(next_y_pos);
 
    ball_x_pos = next_x_pos;
    ball_y_pos = next_y_pos;
 
-   ball_rect.left = ball_x_pos * GLOBAL_SCALE;
-   ball_rect.top = ball_y_pos * GLOBAL_SCALE;
-   ball_rect.right = ball_rect.left + BALL_SIZE * GLOBAL_SCALE;
-   ball_rect.bottom = ball_rect.top + BALL_SIZE * GLOBAL_SCALE;
+   ball_rect.left = ball_x_pos * Engine::GLOBAL_SCALE;
+   ball_rect.top = ball_y_pos * Engine::GLOBAL_SCALE;
+   ball_rect.right = ball_rect.left + BALL_SIZE * Engine::GLOBAL_SCALE;
+   ball_rect.bottom = ball_rect.top + BALL_SIZE * Engine::GLOBAL_SCALE;
 
-   InvalidateRect(hwnd, &prev_ball_rect, FALSE);
-   InvalidateRect(hwnd, &ball_rect, FALSE);
+   InvalidateRect(engine->hwnd, &prev_ball_rect, FALSE);
+   InvalidateRect(engine->hwnd, &ball_rect, FALSE);
 }
 
 int Engine::OnTimer()
 {
-   MoveBall();
+   ball.Move(this);
 
    return 0;
 }
