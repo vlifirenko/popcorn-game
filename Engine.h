@@ -29,6 +29,7 @@ const int TIMER_ID = WM_USER + 1;
 
 class Engine;
 class Level;
+class Platform;
 
 class Ball
 {
@@ -37,7 +38,7 @@ public:
 
    void Init();
    void Draw(HDC hdc, RECT& paint_area, Engine *engine);
-   void Move(Engine* engine, Level* level);
+   void Move(Engine* engine, Level* level, Platform* platform);
 
    HPEN bg_pen;
    HBRUSH bg_brush;
@@ -88,6 +89,52 @@ private:
    static const int BRICK_HEIGHT = 7;
 };
 
+class Platform
+{
+public:
+   Platform();
+
+   void Init();
+   void Redraw(HWND hwnd);
+   void Draw(HDC hdc, Engine* engine, RECT& paint_area);
+
+   int x_pos;
+   int x_step;
+   int width;
+
+   static const int PLATFORM_Y_POS = 185;
+
+private:
+   int inner_width;
+
+   RECT platform_rect, prev_platform_rect;
+
+   HPEN platform_circle_pen;
+   HPEN platform_inner_pen;
+   HPEN highlight_pen;
+   HBRUSH platform_circle_brush;
+   HBRUSH platform_inner_brush;
+
+   static const int PLATFORM_HEIGHT = 7;
+};
+
+class Border
+{
+public:
+   void Init();
+   void DrawBounds(HDC hdc, Engine* engine);
+
+   static const int BORDER_X_OFFSET = 6;
+   static const int BORDER_Y_OFFSET = 4;
+private:
+   void DrawElement(HDC hdc, int x, int y, bool top_border, Engine* engine);
+
+   HPEN border_blue_pen;
+   HPEN border_white_pen;
+   HBRUSH border_blue_brush;
+   HBRUSH border_white_brush;
+};
+
 class Engine
 {
 public:
@@ -101,42 +148,18 @@ public:
    static void CreatePenBrush(unsigned char r, unsigned char g, unsigned char b, HPEN& pen, HBRUSH& brush);
 
    HWND hwnd;
-   int platform_x_pos;
-   int platform_width;
+   
    HPEN bg_pen;
    HBRUSH bg_brush;
 
    static const int GLOBAL_SCALE = 3; 
    static const int MAX_X_POS = Level::LEVEL_X_OFFSET + Level::CELL_WIDTH * Level::LEVEL_WIDTH;
-   static const int MAX_Y_POS = 199 - Ball::BALL_SIZE;   
-   static const int PLATFORM_Y_POS = 185;
-   static const int BORDER_X_OFFSET = 6;
-   static const int BORDER_Y_OFFSET = 4;
+   static const int MAX_Y_POS = 199 - Ball::BALL_SIZE;     
+   static const int CIRCLE_SIZE = 7;
 
 private:
-   void RedrawPlatform();
-   void DrawPlatform(HDC hdc, int x, int y);
-   void DrawBorder(HDC hdc, int x, int y, bool top_border);
-   void DrawBounds(HDC hdc);
-
-   HPEN highlight_pen;
-   HPEN platform_circle_pen;
-   HPEN platform_inner_pen;
-   HPEN border_blue_pen;
-   HPEN border_white_pen;
-   HBRUSH platform_circle_brush;
-   HBRUSH platform_inner_brush;
-   HBRUSH border_blue_brush;
-   HBRUSH border_white_brush;
-
-   int inner_width;
-   int platform_x_step;
-
-   RECT platform_rect, prev_platform_rect;
-
    Ball ball;
    Level level;
-
-   static const int CIRCLE_SIZE = 7;
-   static const int PLATFORM_HEIGHT = 7;
+   Platform platform;
+   Border border;
 };

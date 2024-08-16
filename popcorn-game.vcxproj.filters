@@ -13,11 +13,14 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="main">
-      <UniqueIdentifier>{22108c7d-7be5-4eaf-abd1-2ead48a5f2d6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine">
       <UniqueIdentifier>{2e936861-19c8-43ad-a4c5-3994c93072b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{22108c7d-7be5-4eaf-abd1-2ead48a5f2d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Border">
+      <UniqueIdentifier>{6473937c-ac8f-4a7f-8d07-69048d5189dc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -31,7 +34,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="main.h">
-      <Filter>main</Filter>
+      <Filter>Main</Filter>
     </ClInclude>
     <ClInclude Include="Engine.h">
       <Filter>Engine</Filter>
@@ -52,7 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>main</Filter>
+      <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="Engine.cpp">
       <Filter>Engine</Filter>

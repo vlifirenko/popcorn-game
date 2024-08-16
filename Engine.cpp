@@ -19,7 +19,6 @@ char LEVEL_01[Level::LEVEL_HEIGHT][Level::LEVEL_WIDTH] =
 };
 
 Engine::Engine()
-   : inner_width(21), platform_x_pos(BORDER_X_OFFSET), platform_x_step(GLOBAL_SCALE), platform_width(28)
 {
 }
 
@@ -38,14 +37,27 @@ void Engine::CreatePenBrush(unsigned char r, unsigned char g, unsigned char b, H
    brush = CreateSolidBrush(RGB(r, g, b));
 }
 
-void Engine::RedrawPlatform()
+Platform::Platform()
+   : x_pos(Border::BORDER_X_OFFSET), x_step(Engine::GLOBAL_SCALE), width(28), inner_width(21)
+{
+}
+
+void Platform::Init()
+{
+   highlight_pen = CreatePen(PS_SOLID, 0, RGB(255, 255, 255));
+
+   Engine::CreatePenBrush(151, 0, 0, platform_circle_pen, platform_circle_brush);
+   Engine::CreatePenBrush(0, 128, 192, platform_inner_pen, platform_inner_brush);
+}
+
+void Platform::Redraw(HWND hwnd)
 {
    prev_platform_rect = platform_rect;
 
-   platform_rect.left = (Level::LEVEL_X_OFFSET + platform_x_pos) * GLOBAL_SCALE;
-   platform_rect.top = PLATFORM_Y_POS * GLOBAL_SCALE;
-   platform_rect.right = platform_rect.left + platform_width * GLOBAL_SCALE;
-   platform_rect.bottom = platform_rect.top + PLATFORM_HEIGHT * GLOBAL_SCALE;
+   platform_rect.left = (Level::LEVEL_X_OFFSET + x_pos) * Engine::GLOBAL_SCALE;
+   platform_rect.top = PLATFORM_Y_POS * Engine::GLOBAL_SCALE;
+   platform_rect.right = platform_rect.left + width * Engine::GLOBAL_SCALE;
+   platform_rect.bottom = platform_rect.top + PLATFORM_HEIGHT * Engine::GLOBAL_SCALE;
 
    InvalidateRect(hwnd, &prev_platform_rect, FALSE);
    InvalidateRect(hwnd, &platform_rect, FALSE);
@@ -55,18 +67,14 @@ void Engine::InitEngine(HWND h)
 {
    hwnd = h;
 
-   highlight_pen = CreatePen(PS_SOLID, 0, RGB(255, 255, 255));
-
-   CreatePenBrush(15, 63, 31, bg_pen, bg_brush); 
-   CreatePenBrush(151, 0, 0, platform_circle_pen, platform_circle_brush);
-   CreatePenBrush(0, 128, 192, platform_inner_pen, platform_inner_brush);
-   CreatePenBrush(85, 255, 255, border_blue_pen, border_blue_brush);
-   CreatePenBrush(255, 255, 255, border_white_pen, border_white_brush);
+   CreatePenBrush(15, 63, 31, bg_pen, bg_brush);
 
    ball.Init();
    level.Init();
+   platform.Init();
+   border.Init();
 
-   RedrawPlatform();
+   platform.Redraw(hwnd);
 
    SetTimer(hwnd, TIMER_ID, 50, 0);
 }
@@ -82,6 +90,17 @@ void Level::Init()
    level_rect.top = Level::LEVEL_Y_OFFSET * Engine::GLOBAL_SCALE;
    level_rect.right = level_rect.left + Level::CELL_WIDTH * Level::LEVEL_WIDTH * Engine::GLOBAL_SCALE;
    level_rect.bottom = level_rect.top + Level::CELL_HEIGHT * Level::LEVEL_HEIGHT * Engine::GLOBAL_SCALE;
+}
+
+void Ball::Init()
+{
+   Engine::CreatePenBrush(255, 255, 255, ball_pen, ball_brush);
+}
+
+void Border::Init()
+{
+   Engine::CreatePenBrush(85, 255, 255, border_blue_pen, border_blue_brush);
+   Engine::CreatePenBrush(255, 255, 255, border_white_pen, border_white_brush);
 }
 
 void Level::DrawBrick(HDC hdc, int x, int y, EBrickType brick_type)
@@ -250,10 +269,17 @@ void Level::DrawLevel(HDC hdc, RECT &paint_area)
       }
 }
 
-void Engine::DrawPlatform(HDC hdc, int x, int y)
+void Platform::Draw(HDC hdc, Engine* engine, RECT& paint_area)
 {
-   SelectObject(hdc, bg_pen);
-   SelectObject(hdc, bg_brush);
+   RECT intersection_rect;
+   if (!IntersectRect(&intersection_rect, &paint_area, &platform_rect))
+      return;
+
+   int x = Level::LEVEL_X_OFFSET + x_pos;
+   int y = PLATFORM_Y_POS;
+
+   SelectObject(hdc, engine->bg_pen);
+   SelectObject(hdc, engine->bg_brush);
 
    Rectangle(hdc,
       prev_platform_rect.left,
@@ -265,43 +291,38 @@ void Engine::DrawPlatform(HDC hdc, int x, int y)
    SelectObject(hdc, platform_circle_brush);
 
    Ellipse(hdc,
-      x * GLOBAL_SCALE,
-      y * GLOBAL_SCALE,
-      (x + CIRCLE_SIZE) * GLOBAL_SCALE,
-      (y + CIRCLE_SIZE) * GLOBAL_SCALE);
+      x * Engine::GLOBAL_SCALE,
+      y * Engine::GLOBAL_SCALE,
+      (x + Engine::CIRCLE_SIZE) * Engine::GLOBAL_SCALE,
+      (y + Engine::CIRCLE_SIZE) * Engine::GLOBAL_SCALE);
    Ellipse(hdc,
-      (x + 21) * GLOBAL_SCALE,
-      y * GLOBAL_SCALE,
-      (x + CIRCLE_SIZE + inner_width) * GLOBAL_SCALE,
-      (y + CIRCLE_SIZE) * GLOBAL_SCALE);
+      (x + 21) * Engine::GLOBAL_SCALE,
+      y * Engine::GLOBAL_SCALE,
+      (x + Engine::CIRCLE_SIZE + inner_width) * Engine::GLOBAL_SCALE,
+      (y + Engine::CIRCLE_SIZE) * Engine::GLOBAL_SCALE);
 
    SelectObject(hdc, highlight_pen);
 
    Arc(hdc,
-      (x + 1) * GLOBAL_SCALE,
-      (y + 1) * GLOBAL_SCALE,
-      (x + CIRCLE_SIZE - 1) * GLOBAL_SCALE,
-      (y + CIRCLE_SIZE - 1) * GLOBAL_SCALE,
-      (x + 1 + 1) * GLOBAL_SCALE,
-      (y + 1) * GLOBAL_SCALE,
-      (x + 1) * GLOBAL_SCALE,
-      (y + 1 + 2) * GLOBAL_SCALE);
+      (x + 1) * Engine::GLOBAL_SCALE,
+      (y + 1) * Engine::GLOBAL_SCALE,
+      (x + Engine::CIRCLE_SIZE - 1) * Engine::GLOBAL_SCALE,
+      (y + Engine::CIRCLE_SIZE - 1) * Engine::GLOBAL_SCALE,
+      (x + 1 + 1) * Engine::GLOBAL_SCALE,
+      (y + 1) * Engine::GLOBAL_SCALE,
+      (x + 1) * Engine::GLOBAL_SCALE,
+      (y + 1 + 2) * Engine::GLOBAL_SCALE);
 
    SelectObject(hdc, platform_inner_pen);
    SelectObject(hdc, platform_inner_brush);
 
    RoundRect(hdc,
-      (x + 4) * GLOBAL_SCALE,
-      (y + 1) * GLOBAL_SCALE,
-      (x + 4 + inner_width - 1) * GLOBAL_SCALE,
-      (y + 1 + 5) * GLOBAL_SCALE,
-      3 * GLOBAL_SCALE,
-      3 * GLOBAL_SCALE);
-}
-
-void Ball::Init()
-{
-   Engine::CreatePenBrush(255, 255, 255, ball_pen, ball_brush);
+      (x + 4) * Engine::GLOBAL_SCALE,
+      (y + 1) * Engine::GLOBAL_SCALE,
+      (x + 4 + inner_width - 1) * Engine::GLOBAL_SCALE,
+      (y + 1 + 5) * Engine::GLOBAL_SCALE,
+      3 * Engine::GLOBAL_SCALE,
+      3 * Engine::GLOBAL_SCALE);
 }
 
 void Ball::Draw(HDC hdc, RECT &paint_area, Engine *engine)
@@ -329,7 +350,7 @@ void Ball::Draw(HDC hdc, RECT &paint_area, Engine *engine)
       ball_rect.bottom - 1);
 }
 
-void Engine::DrawBorder(HDC hdc, int x, int y, bool top_border)
+void Border::DrawElement(HDC hdc, int x, int y, bool top_border, Engine *engine)
 {
    SelectObject(hdc, border_blue_pen);
    SelectObject(hdc, border_blue_brush);
@@ -337,19 +358,19 @@ void Engine::DrawBorder(HDC hdc, int x, int y, bool top_border)
    if (top_border)
    {
       Rectangle(hdc,
-         (x + 0) * GLOBAL_SCALE,
-         (y + 1) *GLOBAL_SCALE,
-         (x + 4) * GLOBAL_SCALE,
-         (y + 4) * GLOBAL_SCALE
+         (x + 0) * Engine::GLOBAL_SCALE,
+         (y + 1) * Engine::GLOBAL_SCALE,
+         (x + 4) * Engine::GLOBAL_SCALE,
+         (y + 4) * Engine::GLOBAL_SCALE
       );
    }
    else
    {
       Rectangle(hdc,
-         (x + 1) * GLOBAL_SCALE,
-         y * GLOBAL_SCALE,
-         (x + 4) * GLOBAL_SCALE,
-         (y + 4) * GLOBAL_SCALE
+         (x + 1) * Engine::GLOBAL_SCALE,
+         y * Engine::GLOBAL_SCALE,
+         (x + 4) * Engine::GLOBAL_SCALE,
+         (y + 4) * Engine::GLOBAL_SCALE
       );
    }
 
@@ -359,55 +380,55 @@ void Engine::DrawBorder(HDC hdc, int x, int y, bool top_border)
    if (top_border)
    {
       Rectangle(hdc,
-         x * GLOBAL_SCALE,
-         y * GLOBAL_SCALE,
-         (x + 4) * GLOBAL_SCALE,
-         (y + 1) * GLOBAL_SCALE
+         x * Engine::GLOBAL_SCALE,
+         y * Engine::GLOBAL_SCALE,
+         (x + 4) * Engine::GLOBAL_SCALE,
+         (y + 1) * Engine::GLOBAL_SCALE
       );
    }
    else
    {
       Rectangle(hdc,
-         x * GLOBAL_SCALE,
-         y * GLOBAL_SCALE,
-         (x + 1) * GLOBAL_SCALE,
-         (y + 4) * GLOBAL_SCALE
+         x * Engine::GLOBAL_SCALE,
+         y * Engine::GLOBAL_SCALE,
+         (x + 1) * Engine::GLOBAL_SCALE,
+         (y + 4) * Engine::GLOBAL_SCALE
       );
    }
 
-   SelectObject(hdc, bg_pen);
-   SelectObject(hdc, bg_brush);
+   SelectObject(hdc, engine->bg_pen);
+   SelectObject(hdc, engine->bg_brush);
 
    if (top_border)
    {
       Rectangle(hdc,
-         (x + 2) * GLOBAL_SCALE,
-         (y + 2) * GLOBAL_SCALE,
-         (x + 3) * GLOBAL_SCALE,
-         (y + 3) * GLOBAL_SCALE
+         (x + 2) * Engine::GLOBAL_SCALE,
+         (y + 2) * Engine::GLOBAL_SCALE,
+         (x + 3) * Engine::GLOBAL_SCALE,
+         (y + 3) * Engine::GLOBAL_SCALE
       );
    }
    else
    {
       Rectangle(hdc,
-         (x + 2) * GLOBAL_SCALE,
-         (y + 1) * GLOBAL_SCALE,
-         (x + 3) * GLOBAL_SCALE,
-         (y + 2) * GLOBAL_SCALE
+         (x + 2) * Engine::GLOBAL_SCALE,
+         (y + 1) * Engine::GLOBAL_SCALE,
+         (x + 3) * Engine::GLOBAL_SCALE,
+         (y + 2) * Engine::GLOBAL_SCALE
       );
    }
 }
 
-void Engine::DrawBounds(HDC hdc)
+void Border::DrawBounds(HDC hdc, Engine* engine)
 {
    for (int i = 0; i < 50; i++)
-      DrawBorder(hdc, 2, 1 + i * 4, false);
+      DrawElement(hdc, 2, 1 + i * 4, false, engine);
 
    for (int i = 0; i < 50; i++)
-      DrawBorder(hdc, 201, 1 + i * 4, false);
+      DrawElement(hdc, 201, 1 + i * 4, false, engine);
 
    for (int i = 0; i < 50; i++)
-      DrawBorder(hdc, 3 + i * 4, 0, true);
+      DrawElement(hdc, 3 + i * 4, 0, true, engine);
 }
 
 void Engine::DrawFrame(HDC hdc, RECT &paint_area)
@@ -416,8 +437,7 @@ void Engine::DrawFrame(HDC hdc, RECT &paint_area)
 
    level.DrawLevel(hdc, paint_area);
 
-   if (IntersectRect(&intersection_rect, &paint_area, &platform_rect))
-      DrawPlatform(hdc, Level::LEVEL_X_OFFSET + platform_x_pos, PLATFORM_Y_POS);
+   platform.Draw(hdc, this, paint_area);
 
    /*for (int i = 0; i < 16; i++)
    {
@@ -427,7 +447,7 @@ void Engine::DrawFrame(HDC hdc, RECT &paint_area)
 
    ball.Draw(hdc, paint_area, this);
 
-   DrawBounds(hdc);
+   border.DrawBounds(hdc, this);
 }
 
 int Engine::OnKeyDown(EKeyType key_type)
@@ -435,20 +455,20 @@ int Engine::OnKeyDown(EKeyType key_type)
    switch (key_type)
    {
    case EKT_Left:
-      platform_x_pos -= platform_x_step;
+      platform.x_pos -= platform.x_step;
 
-      if (platform_x_pos <= BORDER_X_OFFSET)
-         platform_x_pos = BORDER_X_OFFSET;
+      if (platform.x_pos <= Border::BORDER_X_OFFSET)
+         platform.x_pos = Border::BORDER_X_OFFSET;
 
-      RedrawPlatform();
+      platform.Redraw(hwnd);
       break;
    case EKT_Right:
-      platform_x_pos += platform_x_step;
+      platform.x_pos += platform.x_step;
 
-      if (platform_x_pos >= MAX_X_POS - platform_width + 1)
-         platform_x_pos = MAX_X_POS - platform_width + 1;
+      if (platform.x_pos >= MAX_X_POS - platform.width + 1)
+         platform.x_pos = MAX_X_POS - platform.width + 1;
 
-      RedrawPlatform();
+      platform.Redraw(hwnd);
       break;
    case EKT_Space:
       break;
@@ -479,26 +499,26 @@ void Level::CheckLevelBrickHit(int &next_y_pos, double &ball_direction)
    }
 }
 
-void Ball::Move(Engine *engine, Level *level)
+void Ball::Move(Engine* engine, Level* level, Platform* platform)
 {
    int next_x_pos, next_y_pos;
    int max_x_pos = Engine::MAX_X_POS - BALL_SIZE;
-   int platform_y_pos = Engine::PLATFORM_Y_POS - BALL_SIZE;
+   int platform_y_pos = platform->PLATFORM_Y_POS - BALL_SIZE;
 
    prev_ball_rect = ball_rect;
 
    next_x_pos = ball_x_pos + (int)(ball_speed * cos(ball_direction));
    next_y_pos = ball_y_pos - (int)(ball_speed * sin(ball_direction));
 
-   if (next_x_pos < Engine::BORDER_X_OFFSET)
+   if (next_x_pos < Border::BORDER_X_OFFSET)
    {
       next_x_pos = Level::LEVEL_X_OFFSET - (next_x_pos - Level::LEVEL_X_OFFSET);
       ball_direction = M_PI - ball_direction;
    }
 
-   if (next_y_pos < Engine::BORDER_Y_OFFSET)
+   if (next_y_pos < Border::BORDER_Y_OFFSET)
    {
-      next_y_pos = Engine::BORDER_Y_OFFSET - (next_y_pos - Engine::BORDER_Y_OFFSET);
+      next_y_pos = Border::BORDER_Y_OFFSET - (next_y_pos - Border::BORDER_Y_OFFSET);
       ball_direction = -ball_direction;
    }
 
@@ -516,7 +536,7 @@ void Ball::Move(Engine *engine, Level *level)
 
    if (next_y_pos > platform_y_pos)
    {
-      if (next_x_pos >= engine->platform_x_pos && next_x_pos <= engine->platform_x_pos + engine->platform_width)
+      if (next_x_pos >= platform->x_pos && next_x_pos <= platform->x_pos + platform->width)
       {
          next_y_pos = platform_y_pos - (next_y_pos - platform_y_pos);
          ball_direction = M_PI + (M_PI - ball_direction);
@@ -539,7 +559,7 @@ void Ball::Move(Engine *engine, Level *level)
 
 int Engine::OnTimer()
 {
-   ball.Move(this, &level);
+   ball.Move(this, &level, &platform);
 
    return 0;
 }
