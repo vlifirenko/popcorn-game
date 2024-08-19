@@ -22,6 +22,12 @@
     <Filter Include="Border">
       <UniqueIdentifier>{6473937c-ac8f-4a7f-8d07-69048d5189dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Level">
+      <UniqueIdentifier>{44aca1c6-531f-426d-9c00-fa9829b0e3a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Config">
+      <UniqueIdentifier>{a9e75255-2ba1-465d-ba0d-302cad6f5be5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -41,6 +47,12 @@
     </ClInclude>
     <ClInclude Include="Border.h">
       <Filter>Border</Filter>
+    </ClInclude>
+    <ClInclude Include="Level.h">
+      <Filter>Level</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>Config</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -65,6 +77,12 @@
     </ClCompile>
     <ClCompile Include="Border.cpp">
       <Filter>Border</Filter>
+    </ClCompile>
+    <ClCompile Include="Level.cpp">
+      <Filter>Level</Filter>
+    </ClCompile>
+    <ClCompile Include="Config.cpp">
+      <Filter>Config</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
