@@ -1,6 +1,6 @@
 #include "Level.h"
 
-char LEVEL_01[Level::LEVEL_HEIGHT][Level::LEVEL_WIDTH] =
+char LEVEL_01[Config::LEVEL_HEIGHT][Config::LEVEL_WIDTH] =
 {
    0,0,0,0,0,0,0,0,0,0,0,0,
    1,1,1,1,1,1,1,1,1,1,1,1,
@@ -30,10 +30,10 @@ void Level::Init()
    Config::CreatePenBrush(255, 85, 85, brick_red_pen, brick_red_brush);
    Config::CreatePenBrush(85, 255, 255, brick_blue_pen, brick_blue_brush);
 
-   level_rect.left = Level::LEVEL_X_OFFSET * Config::GLOBAL_SCALE;
-   level_rect.top = Level::LEVEL_Y_OFFSET * Config::GLOBAL_SCALE;
-   level_rect.right = level_rect.left + Level::CELL_WIDTH * Level::LEVEL_WIDTH * Config::GLOBAL_SCALE;
-   level_rect.bottom = level_rect.top + Level::CELL_HEIGHT * Level::LEVEL_HEIGHT * Config::GLOBAL_SCALE;
+   level_rect.left = Config::LEVEL_X_OFFSET * Config::GLOBAL_SCALE;
+   level_rect.top = Config::LEVEL_Y_OFFSET * Config::GLOBAL_SCALE;
+   level_rect.right = level_rect.left + Config::CELL_WIDTH * Config::LEVEL_WIDTH * Config::GLOBAL_SCALE;
+   level_rect.bottom = level_rect.top + Config::CELL_HEIGHT * Config::LEVEL_HEIGHT * Config::GLOBAL_SCALE;
 }
 
 void Level::DrawBrick(HDC hdc, int x, int y, EBrickType brick_type)
@@ -195,20 +195,20 @@ void Level::DrawLevel(HDC hdc, RECT& paint_area)
    if (!IntersectRect(&intersection_rect, &paint_area, &level_rect))
       return;
 
-   for (int i = 0; i < LEVEL_WIDTH; i++)
-      for (int j = 0; j < LEVEL_HEIGHT; j++)
+   for (int i = 0; i < Config::LEVEL_WIDTH; i++)
+      for (int j = 0; j < Config::LEVEL_HEIGHT; j++)
       {
-         DrawBrick(hdc, LEVEL_X_OFFSET + j * CELL_WIDTH, LEVEL_Y_OFFSET + i * CELL_HEIGHT, (EBrickType)LEVEL_01[i][j]);
+         DrawBrick(hdc, Config::LEVEL_X_OFFSET + j * Config::CELL_WIDTH, Config::LEVEL_Y_OFFSET + i * Config::CELL_HEIGHT, (EBrickType)LEVEL_01[i][j]);
       }
 }
 
 void Level::CheckLevelBrickHit(int& next_y_pos, double& ball_direction)
 {
-   int brick_y_pos = LEVEL_Y_OFFSET + LEVEL_HEIGHT * CELL_HEIGHT;
+   int brick_y_pos = Config::LEVEL_Y_OFFSET + Config::LEVEL_HEIGHT * Config::CELL_HEIGHT;
 
-   for (int i = LEVEL_HEIGHT - 1; i >= 0; i--)
+   for (int i = Config::LEVEL_HEIGHT - 1; i >= 0; i--)
    {
-      for (int j = 0; j < LEVEL_WIDTH; j++)
+      for (int j = 0; j < Config::LEVEL_WIDTH; j++)
       {
          if (LEVEL_01[i][j] == 0)
             continue;
@@ -220,6 +220,6 @@ void Level::CheckLevelBrickHit(int& next_y_pos, double& ball_direction)
          }
       }
 
-      brick_y_pos -= CELL_HEIGHT;
+      brick_y_pos -= Config::CELL_HEIGHT;
    }
 }

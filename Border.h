@@ -10,8 +10,6 @@ public:
    void Init();
    void DrawBounds(HDC hdc, HPEN bg_pen, HBRUSH bg_brush);
 
-   static const int BORDER_X_OFFSET = 6;
-   static const int BORDER_Y_OFFSET = 4;
 private:
    void DrawElement(HDC hdc, int x, int y, bool top_border, HPEN bg_pen, HBRUSH bg_brush);
 

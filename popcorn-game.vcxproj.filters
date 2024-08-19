@@ -28,6 +28,12 @@
     <Filter Include="Config">
       <UniqueIdentifier>{a9e75255-2ba1-465d-ba0d-302cad6f5be5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Ball">
+      <UniqueIdentifier>{9e9b397a-5e13-4eb0-bbdd-25826908c473}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{63eea28e-4d2c-4dc1-9c46-eef7d035c4d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -53,6 +59,12 @@
     </ClInclude>
     <ClInclude Include="Config.h">
       <Filter>Config</Filter>
+    </ClInclude>
+    <ClInclude Include="Ball.h">
+      <Filter>Ball</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +95,12 @@
     </ClCompile>
     <ClCompile Include="Config.cpp">
       <Filter>Config</Filter>
+    </ClCompile>
+    <ClCompile Include="Ball.cpp">
+      <Filter>Ball</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform.cpp">
+      <Filter>Platform</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
