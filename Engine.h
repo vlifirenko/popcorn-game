@@ -5,6 +5,8 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#include "Border.h"
+
 enum EKeyType
 {
    EKT_Left,
@@ -118,23 +120,6 @@ private:
    static const int PLATFORM_HEIGHT = 7;
 };
 
-class Border
-{
-public:
-   void Init();
-   void DrawBounds(HDC hdc, Engine* engine);
-
-   static const int BORDER_X_OFFSET = 6;
-   static const int BORDER_Y_OFFSET = 4;
-private:
-   void DrawElement(HDC hdc, int x, int y, bool top_border, Engine* engine);
-
-   HPEN border_blue_pen;
-   HPEN border_white_pen;
-   HBRUSH border_blue_brush;
-   HBRUSH border_white_brush;
-};
-
 class Engine
 {
 public:
@@ -145,14 +130,11 @@ public:
    int OnKeyDown(EKeyType keyType);
    int OnTimer();
 
-   static void CreatePenBrush(unsigned char r, unsigned char g, unsigned char b, HPEN& pen, HBRUSH& brush);
-
    HWND hwnd;
    
    HPEN bg_pen;
    HBRUSH bg_brush;
 
-   static const int GLOBAL_SCALE = 3; 
    static const int MAX_X_POS = Level::LEVEL_X_OFFSET + Level::CELL_WIDTH * Level::LEVEL_WIDTH;
    static const int MAX_Y_POS = 199 - Ball::BALL_SIZE;     
    static const int CIRCLE_SIZE = 7;
