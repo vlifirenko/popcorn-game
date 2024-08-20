@@ -19,7 +19,7 @@ char Level::LEVEL_01[Config::LEVEL_HEIGHT][Config::LEVEL_WIDTH] =
 };
 
 Level::Level()
-   : brick_red_pen(0), brick_blue_pen(0), letter_pen(0), brick_red_brush(0), brick_blue_brush(0), level_rect{}
+   : fade_step(0), brick_red_pen(0), brick_blue_pen(0), letter_pen(0), brick_red_brush(0), brick_blue_brush(0), level_rect{}
 {
 }
 
@@ -189,17 +189,42 @@ void Level::DrawBrickLetter(HDC hdc, int x, int y, EBrickType brick_type, ELette
    }
 }
 
-void Level::DrawLevel(HDC hdc, RECT& paint_area)
+void Level::Draw(HWND hwnd, HDC hdc, RECT& paint_area)
 {
    RECT intersection_rect;
    if (!IntersectRect(&intersection_rect, &paint_area, &level_rect))
       return;
+
+   RECT brick_rect;
+   HPEN pen;
+   HBRUSH brush;
 
    for (int i = 0; i < Config::LEVEL_WIDTH; i++)
       for (int j = 0; j < Config::LEVEL_HEIGHT; j++)
       {
          DrawBrick(hdc, Config::LEVEL_X_OFFSET + j * Config::CELL_WIDTH, Config::LEVEL_Y_OFFSET + i * Config::CELL_HEIGHT, (EBrickType)LEVEL_01[i][j]);
       }
+
+   Config::CreatePenBrush(
+      85 - fade_step * (85 / MAX_FADE_STEP),
+      255 - fade_step * (255 / MAX_FADE_STEP),
+      255 - fade_step * (255 / MAX_FADE_STEP),
+      pen, brush);
+
+   ++fade_step;
+
+   SelectObject(hdc, pen);
+   SelectObject(hdc, brush);
+
+   brick_rect.left = (Config::LEVEL_X_OFFSET + 1 * Config::CELL_WIDTH) * Config::GLOBAL_SCALE;
+   brick_rect.top = (Config::LEVEL_Y_OFFSET + 1 * Config::CELL_HEIGHT) * Config::GLOBAL_SCALE;
+   brick_rect.right = brick_rect.left + BRICK_WIDTH * Config::GLOBAL_SCALE;
+   brick_rect.bottom = brick_rect.top + BRICK_HEIGHT * Config::GLOBAL_SCALE;
+
+   InvalidateRect(hwnd, &brick_rect, TRUE);
+
+   RoundRect(hdc, brick_rect.left, brick_rect.top, brick_rect.right, brick_rect.bottom,
+      2 * Config::GLOBAL_SCALE, 2 * Config::GLOBAL_SCALE);
 }
 
 void Level::CheckLevelBrickHit(int& next_y_pos, double& ball_direction)

@@ -25,7 +25,7 @@ void Engine::DrawFrame(HDC hdc, RECT &paint_area)
 {
    RECT intersection_rect;
 
-   level.DrawLevel(hdc, paint_area);
+   level.Draw(hwnd, hdc, paint_area);
 
    platform.Draw(hdc, paint_area, bg_pen, bg_brush);
 
