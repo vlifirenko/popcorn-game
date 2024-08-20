@@ -1,6 +1,6 @@
 #include "Level.h"
 
-char LEVEL_01[Config::LEVEL_HEIGHT][Config::LEVEL_WIDTH] =
+char Level::LEVEL_01[Config::LEVEL_HEIGHT][Config::LEVEL_WIDTH] =
 {
    0,0,0,0,0,0,0,0,0,0,0,0,
    1,1,1,1,1,1,1,1,1,1,1,1,

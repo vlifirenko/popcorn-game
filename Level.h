@@ -37,6 +37,7 @@ private:
 
    RECT level_rect;
 
+   static char LEVEL_01[Config::LEVEL_HEIGHT][Config::LEVEL_WIDTH];
 
    static const int BRICK_WIDTH = 15;
    static const int BRICK_HEIGHT = 7;

@@ -25,11 +25,11 @@ public:
    int OnKeyDown(EKeyType keyType);
    int OnTimer();
 
+private:
    HWND hwnd;
    HPEN bg_pen;
    HBRUSH bg_brush;
 
-private:
    Ball ball;
    Level level;
    Platform platform;
