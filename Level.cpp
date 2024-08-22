@@ -19,7 +19,7 @@ char Level::LEVEL_01[Config::LEVEL_HEIGHT][Config::LEVEL_WIDTH] =
 };
 
 Level::Level()
-   : fade_step(0), brick_red_pen(0), brick_blue_pen(0), letter_pen(0), brick_red_brush(0), brick_blue_brush(0), level_rect{}
+   : brick_red_pen(0), brick_blue_pen(0), letter_pen(0), brick_red_brush(0), brick_blue_brush(0), level_rect{}
 {
 }
 
@@ -66,8 +66,8 @@ void Level::DrawBrick(HDC hdc, int x, int y, EBrickType brick_type)
    RoundRect(hdc,
       x * Config::GLOBAL_SCALE,
       y * Config::GLOBAL_SCALE,
-      (x + BRICK_WIDTH) * Config::GLOBAL_SCALE,
-      (y + BRICK_HEIGHT) * Config::GLOBAL_SCALE,
+      (x + Config::BRICK_WIDTH) * Config::GLOBAL_SCALE,
+      (y + Config::BRICK_HEIGHT) * Config::GLOBAL_SCALE,
       2 * Config::GLOBAL_SCALE, 2 * Config::GLOBAL_SCALE);
 }
 
@@ -95,7 +95,7 @@ void Level::DrawBrickLetter(HDC hdc, int x, int y, EBrickType brick_type, ELette
    bool switch_color;
    double offset;
    double rotation_angle;
-   int brick_half_height = BRICK_HEIGHT * Config::GLOBAL_SCALE / 2;
+   int brick_half_height = Config::BRICK_HEIGHT * Config::GLOBAL_SCALE / 2;
    int back_part_offset;
    HPEN front_pen, back_pen;
    HBRUSH front_brush, back_brush;
@@ -125,7 +125,7 @@ void Level::DrawBrickLetter(HDC hdc, int x, int y, EBrickType brick_type, ELette
       Rectangle(hdc,
          x,
          y + brick_half_height - Config::GLOBAL_SCALE,
-         x + BRICK_WIDTH * Config::GLOBAL_SCALE,
+         x + Config::BRICK_WIDTH * Config::GLOBAL_SCALE,
          y + brick_half_height);
 
       SelectObject(hdc, front_pen);
@@ -134,7 +134,7 @@ void Level::DrawBrickLetter(HDC hdc, int x, int y, EBrickType brick_type, ELette
       Rectangle(hdc,
          x,
          y + brick_half_height,
-         x + BRICK_WIDTH * Config::GLOBAL_SCALE,
+         x + Config::BRICK_WIDTH * Config::GLOBAL_SCALE,
          y + brick_half_height + Config::GLOBAL_SCALE - 1);
    }
    else
@@ -160,7 +160,7 @@ void Level::DrawBrickLetter(HDC hdc, int x, int y, EBrickType brick_type, ELette
       Rectangle(hdc,
          0,
          -brick_half_height - back_part_offset,
-         BRICK_WIDTH * Config::GLOBAL_SCALE,
+         Config::BRICK_WIDTH * Config::GLOBAL_SCALE,
          brick_half_height - back_part_offset);
 
       SelectObject(hdc, front_pen);
@@ -169,7 +169,7 @@ void Level::DrawBrickLetter(HDC hdc, int x, int y, EBrickType brick_type, ELette
       Rectangle(hdc,
          0,
          -brick_half_height,
-         BRICK_WIDTH * Config::GLOBAL_SCALE,
+         Config::BRICK_WIDTH * Config::GLOBAL_SCALE,
          brick_half_height);
 
       if (rotation_step > 4 && rotation_step <= 12)
@@ -195,36 +195,15 @@ void Level::Draw(HWND hwnd, HDC hdc, RECT& paint_area)
    if (!IntersectRect(&intersection_rect, &paint_area, &level_rect))
       return;
 
-   RECT brick_rect;
-   HPEN pen;
-   HBRUSH brush;
+   
 
    for (int i = 0; i < Config::LEVEL_WIDTH; i++)
       for (int j = 0; j < Config::LEVEL_HEIGHT; j++)
       {
          DrawBrick(hdc, Config::LEVEL_X_OFFSET + j * Config::CELL_WIDTH, Config::LEVEL_Y_OFFSET + i * Config::CELL_HEIGHT, (EBrickType)LEVEL_01[i][j]);
-      }
+      } 
 
-   Config::CreatePenBrush(
-      85 - fade_step * (85 / MAX_FADE_STEP),
-      255 - fade_step * (255 / MAX_FADE_STEP),
-      255 - fade_step * (255 / MAX_FADE_STEP),
-      pen, brush);
-
-   ++fade_step;
-
-   SelectObject(hdc, pen);
-   SelectObject(hdc, brush);
-
-   brick_rect.left = (Config::LEVEL_X_OFFSET + 1 * Config::CELL_WIDTH) * Config::GLOBAL_SCALE;
-   brick_rect.top = (Config::LEVEL_Y_OFFSET + 1 * Config::CELL_HEIGHT) * Config::GLOBAL_SCALE;
-   brick_rect.right = brick_rect.left + BRICK_WIDTH * Config::GLOBAL_SCALE;
-   brick_rect.bottom = brick_rect.top + BRICK_HEIGHT * Config::GLOBAL_SCALE;
-
-   InvalidateRect(hwnd, &brick_rect, TRUE);
-
-   RoundRect(hdc, brick_rect.left, brick_rect.top, brick_rect.right, brick_rect.bottom,
-      2 * Config::GLOBAL_SCALE, 2 * Config::GLOBAL_SCALE);
+   active_brick.Draw(hwnd, hdc, paint_area);
 }
 
 void Level::CheckLevelBrickHit(int& next_y_pos, double& ball_direction)

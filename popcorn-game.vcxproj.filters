@@ -34,6 +34,9 @@
     <Filter Include="Platform">
       <UniqueIdentifier>{63eea28e-4d2c-4dc1-9c46-eef7d035c4d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ActiveBrick">
+      <UniqueIdentifier>{65357072-dbee-480c-926b-e70b7a042b66}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -64,6 +67,9 @@
       <Filter>Ball</Filter>
     </ClInclude>
     <ClInclude Include="Platform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ActiveBrick.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -101,6 +107,9 @@
     </ClCompile>
     <ClCompile Include="Platform.cpp">
       <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="ActiveBrick.cpp">
+      <Filter>ActiveBrick</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

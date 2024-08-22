@@ -18,7 +18,7 @@ void Engine::InitEngine(HWND h)
 
    platform.Redraw(hwnd);
 
-   SetTimer(hwnd, TIMER_ID, 50, 0);
+   SetTimer(hwnd, TIMER_ID, 1000 / Config::FPS, 0);
 }
 
 void Engine::DrawFrame(HDC hdc, RECT &paint_area)
@@ -70,6 +70,8 @@ int Engine::OnKeyDown(EKeyType key_type)
 int Engine::OnTimer()
 {
    ball.Move(hwnd, &level, platform.x_pos, platform.width);
+
+   level.active_brick.Act(hwnd);
 
    return 0;
 }

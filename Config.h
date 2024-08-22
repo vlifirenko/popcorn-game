@@ -24,4 +24,7 @@ public:
    static const int MAX_Y_POS = 199 - BALL_SIZE;
    static const int PLATFORM_Y_POS = 185;
    static const int CIRCLE_SIZE = 7;
+   static const int FPS = 20;
+   static const int BRICK_WIDTH = 15;
+   static const int BRICK_HEIGHT = 7;
 };
