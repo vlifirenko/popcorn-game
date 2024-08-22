@@ -27,8 +27,8 @@ void Level::Init()
 {
    letter_pen = CreatePen(PS_SOLID, Config::GLOBAL_SCALE, RGB(255, 255, 255));
 
-   Config::CreatePenBrush(255, 85, 85, brick_red_pen, brick_red_brush);
-   Config::CreatePenBrush(85, 255, 255, brick_blue_pen, brick_blue_brush);
+   Config::CreatePenBrush(Config::RED_BRICK_COLOR, brick_red_pen, brick_red_brush);
+   Config::CreatePenBrush(Config::BLUE_BRICK_COLOR, brick_blue_pen, brick_blue_brush);
 
    level_rect.left = Config::LEVEL_X_OFFSET * Config::GLOBAL_SCALE;
    level_rect.top = Config::LEVEL_Y_OFFSET * Config::GLOBAL_SCALE;

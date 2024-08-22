@@ -11,9 +11,9 @@ void ActiveBrick::Draw(HWND hwnd, HDC hdc, RECT& paint_area)
    HBRUSH brush;
 
    Config::CreatePenBrush(
-      85 - fade_step * (85 / MAX_FADE_STEP),
-      255 - fade_step * (255 / MAX_FADE_STEP),
-      255 - fade_step * (255 / MAX_FADE_STEP),
+      Config::BLUE_BRICK_COLOR.R - fade_step * (Config::BLUE_BRICK_COLOR.R / MAX_FADE_STEP),
+      Config::BLUE_BRICK_COLOR.G - fade_step * (Config::BLUE_BRICK_COLOR.G / MAX_FADE_STEP),
+      Config::BLUE_BRICK_COLOR.B - fade_step * (Config::BLUE_BRICK_COLOR.B / MAX_FADE_STEP),
       pen, brush);
 
    SelectObject(hdc, pen);

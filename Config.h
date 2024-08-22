@@ -5,10 +5,21 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+class Color
+{
+public:
+   Color(unsigned char r, unsigned char g, unsigned char b);
+
+   unsigned char R, G, B;
+};
+
 class Config
 {
 public:
    static void CreatePenBrush(unsigned char r, unsigned char g, unsigned char b, HPEN& pen, HBRUSH& brush);
+   static void CreatePenBrush(const Color& color, HPEN& pen, HBRUSH& brush);
+
+   static const Color RED_BRICK_COLOR, BLUE_BRICK_COLOR;
 
    static const int GLOBAL_SCALE = 3;
    static const int BORDER_X_OFFSET = 6;
@@ -27,4 +38,10 @@ public:
    static const int FPS = 20;
    static const int BRICK_WIDTH = 15;
    static const int BRICK_HEIGHT = 7;
+   static const int RED_R = 255;
+   static const int RED_G = 85;
+   static const int RED_B = 85;
+   static const int BLUE_R = 85;
+   static const int BLUE_G = 255;
+   static const int BLUE_B = 255;
 };
