@@ -27,8 +27,6 @@ public:
 
 private:
    HWND hwnd;
-   HPEN bg_pen;
-   HBRUSH bg_brush;
 
    Ball ball;
    Level level;

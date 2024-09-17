@@ -11,14 +11,14 @@ void Ball::Init()
    Config::CreatePenBrush(255, 255, 255, ball_pen, ball_brush);
 }
 
-void Ball::Draw(HDC hdc, RECT& paint_area, HPEN bg_pen, HBRUSH bg_brush)
+void Ball::Draw(HDC hdc, RECT& paint_area)
 {
    RECT intersection_rect;
    if (!IntersectRect(&intersection_rect, &paint_area, &ball_rect))
       return;
 
-   SelectObject(hdc, bg_pen);
-   SelectObject(hdc, bg_brush);
+   SelectObject(hdc, Config::bg_pen);
+   SelectObject(hdc, Config::bg_brush);
 
    Ellipse(hdc,
       prev_ball_rect.left,

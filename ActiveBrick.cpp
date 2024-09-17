@@ -1,20 +1,32 @@
 #include "ActiveBrick.h"
 
-ActiveBrick::ActiveBrick()
-   :fade_step(0)
+HPEN ActiveBrick::fading_red_brick_pens[MAX_FADE_STEP];
+HBRUSH ActiveBrick::fading_red_brick_brushes[MAX_FADE_STEP];
+HPEN ActiveBrick::fading_blue_brick_pens[MAX_FADE_STEP];
+HBRUSH ActiveBrick::fading_blue_brick_brushes[MAX_FADE_STEP];
+
+ActiveBrick::ActiveBrick(EBrickType brick_type)
+   :fade_step(0), brick_type(brick_type)
 {
 }
 
 void ActiveBrick::Draw(HWND hwnd, HDC hdc, RECT& paint_area)
 {
-   HPEN pen;
-   HBRUSH brush;
+   HPEN pen = 0;
+   HBRUSH brush = 0;
 
-   Config::CreatePenBrush(
-      Config::BLUE_BRICK_COLOR.R - fade_step * (Config::BLUE_BRICK_COLOR.R / MAX_FADE_STEP),
-      Config::BLUE_BRICK_COLOR.G - fade_step * (Config::BLUE_BRICK_COLOR.G / MAX_FADE_STEP),
-      Config::BLUE_BRICK_COLOR.B - fade_step * (Config::BLUE_BRICK_COLOR.B / MAX_FADE_STEP),
-      pen, brush);
+   switch (brick_type)
+   {
+   case EBT_Red:
+      pen = fading_red_brick_pens[fade_step];
+      brush = fading_red_brick_brushes[fade_step];
+      break;
+
+   case EBT_Blue:
+      pen = fading_blue_brick_pens[fade_step];
+      brush = fading_blue_brick_brushes[fade_step];
+      break;
+   }
 
    SelectObject(hdc, pen);
    SelectObject(hdc, brush);
@@ -31,9 +43,33 @@ void ActiveBrick::Draw(HWND hwnd, HDC hdc, RECT& paint_area)
 
 void ActiveBrick::Act(HWND hwnd)
 {
-   if (fade_step < MAX_FADE_STEP)
+   if (fade_step < MAX_FADE_STEP - 1)
    {
       ++fade_step;
       InvalidateRect(hwnd, &brick_rect, TRUE);
    }
+}
+
+void ActiveBrick::SetupColors()
+{
+   for (int i = 0; i < MAX_FADE_STEP; i++)
+   {
+      GetFadingColor(Config::RED_BRICK_COLOR, i, fading_red_brick_pens[i], fading_red_brick_brushes[i]);
+      GetFadingColor(Config::BLUE_BRICK_COLOR, i, fading_blue_brick_pens[i], fading_blue_brick_brushes[i]);
+   }   
+}
+
+unsigned char ActiveBrick::GetFadingChannel(unsigned char color, unsigned char bg_color, int step)
+{
+   return color - step * (color - bg_color / MAX_FADE_STEP - 1);
+}
+
+void ActiveBrick::GetFadingColor(const Color &color, int step, HPEN &pen, HBRUSH &brush)
+{
+   Config::CreatePenBrush(
+      GetFadingChannel(color.R, Config::BG_COLOR.R, step),
+      GetFadingChannel(color.G, Config::BG_COLOR.G, step),
+      GetFadingChannel(color.B, Config::BG_COLOR.B, step),
+      pen,
+      brush);
 }

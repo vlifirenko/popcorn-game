@@ -8,10 +8,10 @@ public:
    Border();
 
    void Init();
-   void DrawBounds(HDC hdc, HPEN bg_pen, HBRUSH bg_brush);
+   void DrawBounds(HDC hdc);
 
 private:
-   void DrawElement(HDC hdc, int x, int y, bool top_border, HPEN bg_pen, HBRUSH bg_brush);
+   void DrawElement(HDC hdc, int x, int y, bool top_border);
 
    HPEN border_blue_pen;
    HPEN border_white_pen;

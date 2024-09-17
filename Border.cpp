@@ -11,7 +11,7 @@ void Border::Init()
    Config::CreatePenBrush(255, 255, 255, border_white_pen, border_white_brush);
 }
 
-void Border::DrawElement(HDC hdc, int x, int y, bool top_border, HPEN bg_pen, HBRUSH bg_brush)
+void Border::DrawElement(HDC hdc, int x, int y, bool top_border)
 {
    SelectObject(hdc, border_blue_pen);
    SelectObject(hdc, border_blue_brush);
@@ -57,8 +57,8 @@ void Border::DrawElement(HDC hdc, int x, int y, bool top_border, HPEN bg_pen, HB
       );
    }
 
-   SelectObject(hdc, bg_pen);
-   SelectObject(hdc, bg_brush);
+   SelectObject(hdc, Config::bg_pen);
+   SelectObject(hdc, Config::bg_brush);
 
    if (top_border)
    {
@@ -80,14 +80,14 @@ void Border::DrawElement(HDC hdc, int x, int y, bool top_border, HPEN bg_pen, HB
    }
 }
 
-void Border::DrawBounds(HDC hdc, HPEN bg_pen, HBRUSH bg_brush)
+void Border::DrawBounds(HDC hdc)
 {
    for (int i = 0; i < 50; i++)
-      DrawElement(hdc, 2, 1 + i * 4, false, bg_pen, bg_brush);
+      DrawElement(hdc, 2, 1 + i * 4, false);
 
    for (int i = 0; i < 50; i++)
-      DrawElement(hdc, 201, 1 + i * 4, false, bg_pen, bg_brush);
+      DrawElement(hdc, 201, 1 + i * 4, false);
 
    for (int i = 0; i < 50; i++)
-      DrawElement(hdc, 3 + i * 4, 0, true, bg_pen, bg_brush);
+      DrawElement(hdc, 3 + i * 4, 0, true);
 }

@@ -27,7 +27,7 @@ void Platform::Redraw(HWND hwnd)
    InvalidateRect(hwnd, &platform_rect, FALSE);
 }
 
-void Platform::Draw(HDC hdc, RECT& paint_area, HPEN bg_pen, HBRUSH bg_brush)
+void Platform::Draw(HDC hdc, RECT& paint_area)
 {
    RECT intersection_rect;
    if (!IntersectRect(&intersection_rect, &paint_area, &platform_rect))
@@ -36,8 +36,8 @@ void Platform::Draw(HDC hdc, RECT& paint_area, HPEN bg_pen, HBRUSH bg_brush)
    int x = Config::LEVEL_X_OFFSET + x_pos;
    int y = Config::PLATFORM_Y_POS;
 
-   SelectObject(hdc, bg_pen);
-   SelectObject(hdc, bg_brush);
+   SelectObject(hdc, Config::bg_pen);
+   SelectObject(hdc, Config::bg_brush);
 
    Rectangle(hdc,
       prev_platform_rect.left,

@@ -19,7 +19,7 @@ char Level::LEVEL_01[Config::LEVEL_HEIGHT][Config::LEVEL_WIDTH] =
 };
 
 Level::Level()
-   : brick_red_pen(0), brick_blue_pen(0), letter_pen(0), brick_red_brush(0), brick_blue_brush(0), level_rect{}
+   : active_brick(EBT_Blue), brick_red_pen(0), brick_blue_pen(0), letter_pen(0), brick_red_brush(0), brick_blue_brush(0), level_rect{}
 {
 }
 

@@ -16,10 +16,13 @@ public:
 class Config
 {
 public:
+   static void SetupColors();
    static void CreatePenBrush(unsigned char r, unsigned char g, unsigned char b, HPEN& pen, HBRUSH& brush);
    static void CreatePenBrush(const Color& color, HPEN& pen, HBRUSH& brush);
 
-   static const Color RED_BRICK_COLOR, BLUE_BRICK_COLOR;
+   static const Color BG_COLOR, RED_BRICK_COLOR, BLUE_BRICK_COLOR;
+   static HPEN bg_pen;
+   static HBRUSH bg_brush;
 
    static const int GLOBAL_SCALE = 3;
    static const int BORDER_X_OFFSET = 6;

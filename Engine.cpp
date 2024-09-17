@@ -1,7 +1,7 @@
 #include "Engine.h"
 
 Engine::Engine()
-   : bg_brush(0), bg_pen(0), hwnd(0)
+   : hwnd(0)
 {
 }
 
@@ -9,7 +9,7 @@ void Engine::InitEngine(HWND h)
 {
    hwnd = h;
 
-   Config::CreatePenBrush(15, 63, 31, bg_pen, bg_brush);
+   ActiveBrick::SetupColors();
 
    ball.Init();
    level.Init();
@@ -27,7 +27,7 @@ void Engine::DrawFrame(HDC hdc, RECT &paint_area)
 
    level.Draw(hwnd, hdc, paint_area);
 
-   platform.Draw(hdc, paint_area, bg_pen, bg_brush);
+   platform.Draw(hdc, paint_area);
 
    /*for (int i = 0; i < 16; i++)
    {
@@ -35,9 +35,9 @@ void Engine::DrawFrame(HDC hdc, RECT &paint_area)
       DrawBrickLetter(hdc,20 + i*CELL_WIDTH*GLOBAL_SCALE, 130, EBT_Red, ELT_O, i);
    }*/
 
-   ball.Draw(hdc, paint_area, bg_pen, bg_brush);
+   ball.Draw(hdc, paint_area);
 
-   border.DrawBounds(hdc, bg_pen, bg_brush);
+   border.DrawBounds(hdc);
 }
 
 int Engine::OnKeyDown(EKeyType key_type)
